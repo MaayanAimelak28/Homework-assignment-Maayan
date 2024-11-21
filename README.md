@@ -1,6 +1,6 @@
 ## Explanation:
 
-### Attached is a video of the execution in this link:
+### Attached is a video showcasing the execution, including the run of test.py, available at this link: 
 
 
 
