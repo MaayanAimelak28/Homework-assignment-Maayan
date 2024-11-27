@@ -1,0 +1,49 @@
+- name: ngnix server configuration
+  hosts: nginx_server
+  become: yes
+  tasks:
+    - name: install yum-utils
+      ansible.builtin.dnf:
+        name: yum-utils
+        state: latest
+        
+    - name: install httpd and nginx packages
+      ansible.builtin.dnf:
+      name:
+        - httpd
+        - nginx
+        state: latest
+
+    - name: add docker repository
+      command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+
+    - name: install docker packages
+      ansible.builtin.dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: start and enable the docker service, if not already running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: copy nginx configuration
+      ansible.builtin.copy:
+        src: /nginx.conf
+        dest: /etc/nginx/nginx.conf
+
+    - name: run the nginx docker container
+      community.docker.docker_container:
+        name: nginx
+        image: nginx:1.22.0-alpine-perl # not the latest(2 years ago)
+        state: started
+        restart: true
+        published_ports:
+          - "80:80"
+        

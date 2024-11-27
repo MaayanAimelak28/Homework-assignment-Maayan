@@ -1,0 +1,25 @@
+- hosts: web_servers
+  become: yes
+  tasks:
+    - name: install httpd package
+      ansible.builtin.dnf:
+        name:
+          - httpd
+        state: latest
+
+    - name: start and enable the httpd service, if not already running
+        ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: yes 
+
+    # Copy using inline content
+    - name: create index.html
+      ansible.builtin.copy:
+        content: "<h1>{{ server_message }}</h1>"
+        dest: /var/www/html/index.html
+        
+    - name: restart httpd service to apply index.html changes
+        ansible.builtin.service:
+        name: httpd
+        state: restarted
